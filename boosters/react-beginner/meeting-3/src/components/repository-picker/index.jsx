@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import classNames from "./class-names.module.css";
+import { fetchRepository } from "./utils";
 
 // You should not have to update this component
 const Repository = ({ description, full_name, html_url, stargazers_count }) => (
@@ -22,30 +23,41 @@ const RepositoryPickerBase = ({
   repository,
   selectedRepositoryName
 }) => (
-  <div className={classNames.repositoryPicker}>
-    <label htmlFor="repositoryName">{text.repository}</label>
-    <select
-      id="repositoryName"
-      name="repositoryName"
-      onChange={onChange}
-      value={selectedRepositoryName}
-    >
-      {repositoryNames.map(repositoryName => (
-        <option key={repositoryName} value={repositoryName}>
-          {repositoryName}
-        </option>
-      ))}
-    </select>
-    {repository && <Repository {...repository} />}
-  </div>
-);
+    <div className={classNames.repositoryPicker}>
+      <label htmlFor="repositoryName">{text.repository}</label>
+      <select
+        id="repositoryName"
+        name="repositoryName"
+        onChange={onChange}
+        value={selectedRepositoryName}
+      >
+        {repositoryNames.map(repositoryName => (
+          <option key={repositoryName} value={repositoryName}>
+            {repositoryName}
+          </option>
+        ))}
+      </select>
+      {repository && <Repository {...repository} />}
+    </div>
+  );
 
 const RepositoryPicker = () => {
   const [selectedRepositoryName, setSelectedRepositoryName] = useState(
     repositoryNames[0]
   );
   const onChange = event => setSelectedRepositoryName(event.target.value);
-  let repository;
+
+  const [repository, setRepo] = useState();
+
+  useEffect(() => {
+    async function fetchData() {
+      const repoInfo = await fetchRepository(selectedRepositoryName);
+      setRepo(repoInfo);
+    }
+
+    fetchData();
+  }, [selectedRepositoryName])
+
 
   const baseProps = {
     onChange,

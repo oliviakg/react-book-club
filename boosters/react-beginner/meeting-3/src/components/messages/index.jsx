@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import classNames from "./class-names.module.css";
 
 export const text = {
@@ -11,6 +11,16 @@ export const text = {
 export const webSocketUrl = "ws://localhost:8080";
 
 const MessageListener = ({ setMessages }) => {
+  useEffect(() => {
+    const addMessage = message => setMessages(previousMessages => [...previousMessages, message])
+
+    const webSocket = new WebSocket(webSocketUrl);
+    webSocket.onmessage = event => {
+      addMessage(JSON.parse(event.data));
+    };
+    return () => webSocket.close();
+  }, [setMessages]);
+
   return null;
 };
 
@@ -25,23 +35,23 @@ const MessagesBase = ({
   setMessages,
   toggleIsListening
 }) => (
-  <div className={classNames.messages}>
-    {isListening && <MessageListener setMessages={setMessages} />}
-    <form onSubmit={onSubmit}>
-      <div>
-        <label htmlFor="message">{text.message}</label>
-        <input id="message" value={newMessage} onChange={onChange} />
-      </div>
-      <button>{text.send}</button>
-    </form>
-    <button onClick={toggleIsListening}>{buttonText}</button>
-    <ul className={classNames.messageList}>
-      {messages.map(({ text, timestamp }) => (
-        <li key={timestamp}>{text}</li>
-      ))}
-    </ul>
-  </div>
-);
+    <div className={classNames.messages}>
+      {isListening && <MessageListener setMessages={setMessages} />}
+      <form onSubmit={onSubmit}>
+        <div>
+          <label htmlFor="message">{text.message}</label>
+          <input id="message" value={newMessage} onChange={onChange} />
+        </div>
+        <button>{text.send}</button>
+      </form>
+      <button onClick={toggleIsListening}>{buttonText}</button>
+      <ul className={classNames.messageList}>
+        {messages.map(({ text, timestamp }) => (
+          <li key={timestamp}>{text}</li>
+        ))}
+      </ul>
+    </div>
+  );
 
 // You should not have to update this component
 const Messages = () => {

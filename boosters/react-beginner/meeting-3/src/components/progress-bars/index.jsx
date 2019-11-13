@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import classNames from "./class-names.module.css";
-
+import { makePercentage, drawProgressBar } from './utils'
 export const text = {
   add: "Add Progress Bar"
 };
 
-const ProgressBarBase = ({ onChange, textLabel, value }) => (
+const ProgressBarBase = ({ onChange, textLabel, value, svgRef }) => (
   <div>
     <div className={classNames.formElements}>
       <label>{textLabel}</label>
@@ -17,7 +17,7 @@ const ProgressBarBase = ({ onChange, textLabel, value }) => (
         value={value}
       />
     </div>
-    <svg className={classNames.svg} />
+    <svg className={classNames.svg} ref={svgRef} />
   </div>
 );
 
@@ -25,11 +25,17 @@ const ProgressBar = ({ progressBarId }) => {
   const [value, setValue] = useState("50");
   const onChange = event => setValue(event.target.value);
   const textLabel = `Progress Bar #${progressBarId} %:`;
+  const svgRef = useRef();
 
+  useEffect(() => {
+    const percentage = makePercentage(value);
+    drawProgressBar(svgRef.current, percentage);
+  }, [value])
   const baseProps = {
     onChange,
     textLabel,
-    value
+    value,
+    svgRef
   };
   return <ProgressBarBase {...baseProps} />;
 };
