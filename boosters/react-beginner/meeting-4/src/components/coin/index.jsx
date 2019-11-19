@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import srcHeads from "./heads.png";
 import srcTails from "./tails.jpg";
 import classNames from "./class-names.module.css";
 
-const useBooleanState = () => {
-  return [false, () => {}, () => {}, () => {}];
+const useBooleanState = (isInitiallyHeads = true) => {
+  const [coinState, setCoinState] = useState(isInitiallyHeads);
+  const flip = () => setCoinState(previousState => !previousState)
+  const setToHeads = () => setCoinState(true);
+  const setToTails = () => setCoinState(false);
+
+
+  return [coinState, flip, setToHeads, setToTails];
 };
 
 export const text = {
